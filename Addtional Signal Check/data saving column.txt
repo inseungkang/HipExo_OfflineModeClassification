@@ -1,0 +1,13 @@
+0. Time
+1. Sync
+2. Hip Angle Right
+3. Hip Angle Left
+4. Torque Command Right
+5. Torque Command Left
+6. Torque Measured Right
+7. Torque Measured Left
+8. Standing Mode
+9. Walking Mode
+IMU Right (9CH)
+IMU Left (9CH)
+IMU Trunk (9CH)
