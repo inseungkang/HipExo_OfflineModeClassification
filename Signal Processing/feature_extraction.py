@@ -115,14 +115,14 @@ def fe_parallel(combo):
 
         # save_path_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
         save_path_dir = "C:\\Users\\ikang7\\Desktop\\transitional label sweep feature extraction\\350\\"
-        print("Extracting AB"+str(subject)+" "+str(trial_mode)+", Window Size "+str(window_size)+", Transition "+str(int(transition_point*10))+", Speed "+str(walking_speed)+", Trial Number "+str(starting_leg)+str(trial_number))
+        print("Extracting AB"+str(subject)+" "+str(trial_mode)+", Window Size "+str(window_size)+", Transition "+str(int(transition_point*100))+", Speed "+str(walking_speed)+", Trial Number "+str(starting_leg)+str(trial_number))
 
         if trial_mode == "LG":
-            save_path = save_path_dir+"AB"+str(subject)+"_"+str(trial_mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S"+str(walking_speed)+"_R"+str(trial_number)+".csv"
+            save_path = save_path_dir+"AB"+str(subject)+"_"+str(trial_mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S"+str(walking_speed)+"_R"+str(trial_number)+".csv"
             if starting_leg == "R":
                 feature_extracted_data.to_csv(save_path, sep=',', index=False, header=False)
         else:
-            save_path = save_path_dir+"AB"+str(subject)+"_"+str(trial_mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial_number)+".csv"
+            save_path = save_path_dir+"AB"+str(subject)+"_"+str(trial_mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial_number)+".csv"
             if walking_speed == 2:
                 feature_extracted_data.to_csv(save_path, sep=',', index=False, header=False)
 
