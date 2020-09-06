@@ -114,7 +114,7 @@ def fe_parallel(combo):
                 feature_extracted_data = feature_extraction(data, window_size)
 
         # save_path_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
-        save_path_dir = "C:\\Users\\ikang7\\Desktop\\transitional label sweep feature extraction\\350\\"
+        save_path_dir = "C:\\Users\\ikang7\\Desktop\\transitional label sweep feature extraction\\"+str(window_size)+"\\"
         print("Extracting AB"+str(subject)+" "+str(trial_mode)+", Window Size "+str(window_size)+", Transition "+str(int(transition_point*100))+", Speed "+str(walking_speed)+", Trial Number "+str(starting_leg)+str(trial_number))
 
         if trial_mode == "LG":
@@ -128,7 +128,7 @@ def fe_parallel(combo):
 
 run_combos = []
 for subject in [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28, 30]:
-    for window_size in [350]:
+    for window_size in [350, 750]:
         for trial_mode in ["LG"]:
             for starting_leg in ["R"]:
                 for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
@@ -139,7 +139,7 @@ Parallel(n_jobs=-1)(delayed(fe_parallel)(combo) for combo in run_combos)
 
 run_combos = []
 for subject in [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28, 30]:
-    for window_size in [350]:
+    for window_size in [350, 750]:
         for trial_mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:
                 for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
