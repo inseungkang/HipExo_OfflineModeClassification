@@ -20,9 +20,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
 window_size = 350
 transition_point = 0.2
 phase_number = 1
-boost_round = 400
-tree_depth = 6
-child_weight = 0.1
+boost_round = 200
+tree_depth = 8
+child_weight = 0.01
 fe_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
 
 num_channels = 70
@@ -30,7 +30,10 @@ channel_list = list(np.arange(0,num_channels))
 chosen_features = []
 
 def xgboost_parallel(combo):
-    testing_subject = combo[0]
+    channel = [0]
+    testing_subject = combo[1]
+    feature_list = chosen_features + [channel]
+
     for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
         trial_pool = [1, 2, 3]
         subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -48,7 +51,7 @@ def xgboost_parallel(combo):
             for subject in subject_pool:
                 for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5","SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
                     for starting_leg in ["R", "L"]:
-                        train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                        train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                         if path.exists(train_path) == 1:
                             for train_read_path in glob.glob(train_path):
@@ -80,7 +83,7 @@ def xgboost_parallel(combo):
         for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
-                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(test_path) == 1:
                         for test_read_path in glob.glob(test_path):
@@ -114,18 +117,15 @@ def xgboost_parallel(combo):
 for num_features in range(0, num_channels):
     print("Finding feature #" + str(num_features) + ': ')
     channel_scores = {}
+
+    model_accuracy = []
+    run_combos = []
     for channel in channel_list:
-        testing_features = chosen_features + [channel]
-        feature_list = testing_features
-
-        model_accuracy = []
-        run_combos = []
-        for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-            run_combos.append([testing_subject])
-        Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
-
-        scores = np.mean(model_accuracy)
-        channel_scores[channel] = scores
+    	for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+    		run_combos.append([channel, testing_subject])
+	Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+    scores = np.mean(model_accuracy)
+    channel_scores[channel] = scores
 
     #find max score
     highest_channel = max(channel_scores, key=channel_scores.get)
