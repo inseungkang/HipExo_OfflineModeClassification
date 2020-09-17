@@ -19,7 +19,7 @@ def lda_parallel(combo):
     transition_point = combo[2]
     phase_number = combo[3]
 
-    fe_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
+    fe_dir = "/HDD/hipexo/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -36,7 +36,7 @@ def lda_parallel(combo):
         for subject in subject_pool:
             for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5","SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
                 for starting_leg in ["R", "L"]:
-                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(train_path) == 1:
                         for train_read_path in glob.glob(train_path):
@@ -69,7 +69,7 @@ def lda_parallel(combo):
         for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
-                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(test_path) == 1:
                         for test_read_path in glob.glob(test_path):
@@ -115,7 +115,7 @@ def lda_parallel(combo):
         for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
-                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(test_path) == 1:
                         for test_read_path in glob.glob(test_path):

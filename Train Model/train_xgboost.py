@@ -23,8 +23,8 @@ def xgboost_parallel(combo):
     tree_depth = combo[5]
     child_weight = combo[6]
 
-    fe_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
-
+    fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
+    
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
     del subject_pool[subject_pool.index(testing_subject)]

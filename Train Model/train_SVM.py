@@ -22,7 +22,7 @@ def SVM_parallel(combo):
     phase_number = combo[3]
     kernel_type = combo[4]
 
-    fe_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
+    fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
