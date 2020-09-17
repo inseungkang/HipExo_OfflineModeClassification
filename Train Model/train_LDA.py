@@ -19,7 +19,7 @@ def lda_parallel(combo):
     transition_point = combo[2]
     phase_number = combo[3]
 
-    fe_dir = "/HDD/hipexo/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
+    fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -157,7 +157,7 @@ def lda_parallel(combo):
     LDA_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
     print("subject = "+str(testing_subject)+" window size = "+str(window_size)+" phase number = "+str(phase_number)+ " Accuracy = "+str(LDA_overall_accuracy))
 
-    base_path_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/Result/"
+    base_path_dir = "/HDD/hipexo/Inseung/Result/"
     text_file1 = base_path_dir + "LDA_phase_result.txt"
 
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(LDA_overall_accuracy),"\n"])
