@@ -112,20 +112,25 @@ def xgboost_parallel(combo):
         Y_test_result = np.ravel(Y_test_result)
         Y_pred_result = np.ravel(Y_pred_result)
         xgboost_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
-        model_accuracy.append(xgboost_overall_accuracy)
+        output = [channel, xgboost_overall_accuracy]
+        return output
 
 for num_features in range(0, num_channels):
     print("Finding feature #" + str(num_features) + ': ')
-    channel_scores = {}
 
-    model_accuracy = []
+    channel_scores = {}
     run_combos = []
     for channel in channel_list:
-    	for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    		run_combos.append([channel, testing_subject])
-	Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
-    scores = np.mean(model_accuracy)
-    channel_scores[channel] = scores
+        for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+            run_combos.append([channel, testing_subject])
+    joblib_result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+
+    for channel in channel_list:
+        individual_channel_accuracy = []
+        for model_output in joblib_result:
+            if model_output[0] == channel:
+                individual_channel_accuracy.append(model_output[1])
+        channel_scores[channel] = np.mean(individual_channel_accuracy)
 
     #find max score
     highest_channel = max(channel_scores, key=channel_scores.get)
@@ -140,11 +145,5 @@ for num_features in range(0, num_channels):
             f.write(str(item) + ", ")
         f.write("\t" + str(channel_scores[highest_channel]) + "\n\r")
     f.close()
-
-
-
-
-
-
 
 
