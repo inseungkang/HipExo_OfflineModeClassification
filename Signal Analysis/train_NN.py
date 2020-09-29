@@ -23,14 +23,6 @@ from joblib import Parallel, delayed
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
-LDA_saving_file = "LDA_remove1"
-SVM_saving_file = "SVM_remove1"
-NN_saving_file = "NN_remove1"
-XGB_saving_file = "XGB_remove1"
-
-training_mode = ["RA3", "RA4", "RA5", "RD3", "RD4", "RD5","SA2", "SA3", "SA4", "SD2", "SD3", "SD4"]
-testing_mode = ["RA2", "RD2", "SA1", "SD1"]
-
 def NN_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -58,7 +50,7 @@ def NN_parallel(combo):
 ######### concat all the training data ##############
     for trial in trial_pool:
         for subject in subject_pool:
-            for mode in training_mode:
+            for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5","SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
                 for starting_leg in ["R", "L"]:
                     train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
@@ -85,7 +77,7 @@ def NN_parallel(combo):
 
     if phase_number == 1:
 ######### training/testing the unified model ##############
-        for mode in testing_mode:
+        for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
                     test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
@@ -129,7 +121,7 @@ def NN_parallel(combo):
 
     else:
 ######### training/testing the phase dependent model ##############
-        for mode in testing_mode:
+        for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
                     test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
@@ -202,14 +194,14 @@ def NN_parallel(combo):
     print("subject = "+str(testing_subject)+" window size = "+str(window_size)+ " phase number = "+ str(phase_number)+" Accuracy = "+str(NN_overall_accuracy))
     
     base_path_dir = "/HDD/hipexo/Inseung/Result/"
-    text_file1 = base_path_dir + NN_saving_file + ".txt"
+    text_file1 = base_path_dir + "NN_transitionsweep.txt"
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_overall_accuracy),"\n"])
     return text_file1, msg1
 
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [550]:
-        for transition_point in [0.2]:
+        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
             for phase_number in [1]:
                 for layer_num in [4]:
                     for node_num in [25]:
