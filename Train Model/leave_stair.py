@@ -25,8 +25,9 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
-fe_dir = "C:\\Users\\Inseung Kang\\Desktop\\feature extraction data\\"
-base_path_dir = "C:\\Users\\Inseung Kang\\Desktop\\Result\\"
+fe_dir = "C:\\Users\\ikang7\\Desktop\\feature extraction data\\"
+base_path_dir = "C:\\Users\\ikang7\\Desktop\\Result\\"
+
 
 #############################################################################
 def lda_parallel(combo):
@@ -629,12 +630,12 @@ def xgboost_parallel(combo):
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(xgboost_overall_accuracy),"\n"])
     return text_file1, msg1
 
-LDA_saving_file = "LDA_ramp_remove1"
-SVM_saving_file = "SVM_ramp_remove1"
-NN_saving_file = "NN_ramp_remove1"
-XGB_saving_file = "XGB_ramp_remove1"
-training_mode = ["RA3", "RA4", "RA5", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA2", "RD2"]
+LDA_saving_file = "LDA_stair_remove1"
+SVM_saving_file = "SVM_stair_remove1"
+NN_saving_file = "NN_stair_remove1"
+XGB_saving_file = "XGB_stair_remove1"
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA2", "SA3", "SA4", "SD2", "SD3", "SD4"]
+testing_mode = ["SA1", "SD1"]
 
 # LDA run
 run_combos = []
@@ -656,7 +657,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -672,7 +672,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -688,18 +687,17 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-LDA_saving_file = "LDA_ramp_remove2"
-SVM_saving_file = "SVM_ramp_remove2"
-NN_saving_file = "NN_ramp_remove2"
-XGB_saving_file = "XGB_ramp_remove2"
-training_mode = ["RA2", "RA4", "RA5", "RD2", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA3", "RD3"]
+LDA_saving_file = "LDA_stair_remove2"
+SVM_saving_file = "SVM_stair_remove2"
+NN_saving_file = "NN_stair_remove2"
+XGB_saving_file = "XGB_stair_remove2"
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA3", "SA4", "SD1", "SD3", "SD4"]
+testing_mode = ["SA2", "SD2"]
 
 # LDA run
 run_combos = []
@@ -721,7 +719,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -737,7 +734,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -753,18 +749,17 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-LDA_saving_file = "LDA_ramp_remove3"
-SVM_saving_file = "SVM_ramp_remove3"
-NN_saving_file = "NN_ramp_remove3"
-XGB_saving_file = "XGB_ramp_remove3"
-training_mode = ["RA2", "RA3", "RA5", "RD2", "RD3", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA4", "RD4"]
+LDA_saving_file = "LDA_stair_remove3"
+SVM_saving_file = "SVM_stair_remove3"
+NN_saving_file = "NN_stair_remove3"
+XGB_saving_file = "XGB_stair_remove3"
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA4", "SD1", "SD2", "SD4"]
+testing_mode = ["SA3", "SD3"]
 
 # LDA run
 run_combos = []
@@ -786,7 +781,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -802,7 +796,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -818,18 +811,17 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-LDA_saving_file = "LDA_ramp_remove4"
-SVM_saving_file = "SVM_ramp_remove4"
-NN_saving_file = "NN_ramp_remove4"
-XGB_saving_file = "XGB_ramp_remove4"
-training_mode = ["RA2", "RA3", "RA4", "RD2", "RD3", "RD4", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA5", "RD5"]
+LDA_saving_file = "LDA_stair_remove4"
+SVM_saving_file = "SVM_stair_remove4"
+NN_saving_file = "NN_stair_remove4"
+XGB_saving_file = "XGB_stair_remove4"
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SD1", "SD2", "SD3"]
+testing_mode = ["SA4", "SD4"]
 
 # LDA run
 run_combos = []
@@ -851,7 +843,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -867,7 +858,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -883,7 +873,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
