@@ -25,60 +25,8 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
-import pandas as pd
-import numpy as np
-import math
-from sklearn import preprocessing
-import glob
-from os import path
-import collections
-import statistics
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
-from sklearn.svm import SVC
-import xgboost as xgb
-from joblib import Parallel, delayed
-import gc
-
-import warnings
-warnings.filterwarnings('ignore',category=FutureWarning)
-import glob
-import os
-import keras
-import pandas as pd
-import numpy as np
-import math
-import collections
-import statistics
-from os import path
-from sklearn.metrics import accuracy_score
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Conv1D, Flatten
-from keras.optimizers import Adam, SGD, Nadam
-from keras import backend as K
-from keras import regularizers
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
-from joblib import Parallel, delayed
-from tensorflow.python.util import deprecation
-deprecation._PRINT_DEPRECATION_WARNINGS = False
-
-import pandas as pd
-import numpy as np
-import math
-from sklearn import preprocessing
-import glob
-from os import path
-import collections
-import statistics
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
-import xgboost as xgb
-from joblib import Parallel, delayed
-import gc
-
-fe_dir = "C:\\Users\\Inseung Kang\\Desktop\\feature extraction data\\"
-base_path_dir = "C:\\Users\\Inseung Kang\\Desktop\\Result\\"
+fe_dir = "C:\\Users\\ikang7\\Desktop\\feature extraction data\\"
+base_path_dir = "C:\\Users\\ikang7\\Desktop\\Result\\"
 
 #############################################################################
 def lda_parallel(combo):
@@ -138,6 +86,8 @@ def lda_parallel(combo):
                         for test_read_path in glob.glob(test_path):
                             data = pd.read_csv(test_read_path, header=None)
                             X = data.iloc[:, :-3]
+                            for sensor in dropping_sensor:
+                                X.iloc[:, sensor] = 0
                             Y = data.iloc[:, -1]
                             Y_pred = lda_model.predict(X)
                             Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
@@ -150,6 +100,8 @@ def lda_parallel(combo):
                 for test_read_path in glob.glob(test_path):
                     data = pd.read_csv(test_read_path, header=None)
                     X = data.iloc[:, :-3]
+                    for sensor in dropping_sensor:
+                        X.iloc[:, sensor] = 0
                     Y = data.iloc[:, -1]
                     Y_pred = lda_model.predict(X)
                     Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
@@ -279,6 +231,8 @@ def SVM_parallel(combo):
                         for test_read_path in glob.glob(test_path):
                             data = pd.read_csv(test_read_path, header=None)
                             X = data.iloc[:, :-3]
+                            for sensor in dropping_sensor:
+                                X.iloc[:, sensor] = 0
                             Y = data.iloc[:, -1]
                             Y_pred = svm_model.predict(X)
                             Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
@@ -291,6 +245,8 @@ def SVM_parallel(combo):
                 for test_read_path in glob.glob(test_path):
                     data = pd.read_csv(test_read_path, header=None)
                     X = data.iloc[:, :-3]
+                    for sensor in dropping_sensor:
+                        X.iloc[:, sensor] = 0
                     Y = data.iloc[:, -1]
                     Y_pred = svm_model.predict(X)
                     Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
@@ -421,6 +377,8 @@ def NN_parallel(combo):
                         for test_read_path in glob.glob(test_path):
                             data = pd.read_csv(test_read_path, header=None)
                             X = data.iloc[:, :-3]
+                            for sensor in dropping_sensor:
+                                X.iloc[:, sensor] = 0
                             Y = data.iloc[:, -1]
                             X_test = pd.concat([X_test, X], axis=0, ignore_index=True)
                             Y_test = pd.concat([Y_test, Y], axis=0, ignore_index=True)
@@ -432,6 +390,8 @@ def NN_parallel(combo):
                 for test_read_path in glob.glob(test_path):
                     data = pd.read_csv(test_read_path, header=None)
                     X = data.iloc[:, :-3]
+                    for sensor in dropping_sensor:
+                        X.iloc[:, sensor] = 0
                     Y = data.iloc[:, -1]
                     X_test = pd.concat([X_test, X], axis=0, ignore_index=True)
                     Y_test = pd.concat([Y_test, Y], axis=0, ignore_index=True)
@@ -530,7 +490,6 @@ def NN_parallel(combo):
     text_file1 = base_path_dir + NN_saving_file + ".txt"
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_overall_accuracy),"\n"])
     return text_file1, msg1
-
 def xgboost_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -592,6 +551,8 @@ def xgboost_parallel(combo):
                         for test_read_path in glob.glob(test_path):
                             data = pd.read_csv(test_read_path, header=None)
                             X = data.iloc[:, :-3]
+                            for sensor in dropping_sensor:
+                                X.iloc[:, sensor] = 0
                             Y = data.iloc[:, -1]
                             xg_test = xgb.DMatrix(X, label=Y)
                             Y_pred = model.predict(xg_test)
@@ -605,6 +566,8 @@ def xgboost_parallel(combo):
                 for test_read_path in glob.glob(test_path):
                     data = pd.read_csv(test_read_path, header=None)
                     X = data.iloc[:, :-3]
+                    for sensor in dropping_sensor:
+                        X.iloc[:, sensor] = 0
                     Y = data.iloc[:, -1]
                     xg_test = xgb.DMatrix(X, label=Y)
                     Y_pred = model.predict(xg_test)
@@ -682,51 +645,21 @@ def xgboost_parallel(combo):
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(xgboost_overall_accuracy),"\n"])
     return text_file1, msg1
 
-LDA_saving_file = "LDA_ramp_remove1"
-SVM_saving_file = "SVM_ramp_remove1"
-NN_saving_file = "NN_ramp_remove1"
-XGB_saving_file = "XGB_ramp_remove1"
-training_mode = ["RA3", "RA4", "RA5", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA2", "RD2"]
+# hip 0 - 9 channel
+# thigh 10 - 39 channel
+# trunk 40 - 69 channel
 
-# NN run
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [550]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                for layer_num in [4]:
-                    for node_num in [25]:
-                        for optimizer_value in ['SGD']:
-                            run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
+LDA_saving_file = "LDA_hip_remove"
+SVM_saving_file = "SVM_hip_remove"
+NN_saving_file = "NN_hip_remove"
+XGB_saving_file = "XGB_hip_remove"
 
-result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
+testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 
-# XGB run
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [350]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                for boost_round in [200]:
-                    for tree_depth in [8]:
-                        for child_weight in [0.01]:
-                            run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
-result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
-
-LDA_saving_file = "LDA_ramp_remove2"
-SVM_saving_file = "SVM_ramp_remove2"
-NN_saving_file = "NN_ramp_remove2"
-XGB_saving_file = "XGB_ramp_remove2"
-training_mode = ["RA2", "RA4", "RA5", "RD2", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA3", "RD3"]
+dropping_sensor = np.arange(0, 10)
+# dropping_sensor = np.arange(10, 40)
+# dropping_sensor = np.arange(40, 70)
 
 # LDA run
 run_combos = []
@@ -748,7 +681,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -764,7 +696,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -780,18 +711,23 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-LDA_saving_file = "LDA_ramp_remove3"
-SVM_saving_file = "SVM_ramp_remove3"
-NN_saving_file = "NN_ramp_remove3"
-XGB_saving_file = "XGB_ramp_remove3"
-training_mode = ["RA2", "RA3", "RA5", "RD2", "RD3", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA4", "RD4"]
+
+LDA_saving_file = "LDA_thigh_remove"
+SVM_saving_file = "SVM_thigh_remove"
+NN_saving_file = "NN_thigh_remove"
+XGB_saving_file = "XGB_thigh_remove"
+
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
+testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
+
+# dropping_sensor = np.arange(0, 10)
+dropping_sensor = np.arange(10, 40)
+# dropping_sensor = np.arange(40, 70)
 
 # LDA run
 run_combos = []
@@ -813,7 +749,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -829,7 +764,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -845,18 +779,22 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-LDA_saving_file = "LDA_ramp_remove4"
-SVM_saving_file = "SVM_ramp_remove4"
-NN_saving_file = "NN_ramp_remove4"
-XGB_saving_file = "XGB_ramp_remove4"
-training_mode = ["RA2", "RA3", "RA4", "RD2", "RD3", "RD4", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA5", "RD5"]
+LDA_saving_file = "LDA_trunk_remove"
+SVM_saving_file = "SVM_trunk_remove"
+NN_saving_file = "NN_trunk_remove"
+XGB_saving_file = "XGB_trunk_remove"
+
+training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
+testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
+
+# dropping_sensor = np.arange(0, 10)
+# dropping_sensor = np.arange(10, 40)
+dropping_sensor = np.arange(40, 70)
 
 # LDA run
 run_combos = []
@@ -878,7 +816,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
 result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -894,7 +831,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for node_num in [25]:
                         for optimizer_value in ['SGD']:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-
 result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
@@ -910,7 +846,6 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for tree_depth in [8]:
                         for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
