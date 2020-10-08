@@ -25,6 +25,58 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
+import pandas as pd
+import numpy as np
+import math
+from sklearn import preprocessing
+import glob
+from os import path
+import collections
+import statistics
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+import xgboost as xgb
+from joblib import Parallel, delayed
+import gc
+
+import warnings
+warnings.filterwarnings('ignore',category=FutureWarning)
+import glob
+import os
+import keras
+import pandas as pd
+import numpy as np
+import math
+import collections
+import statistics
+from os import path
+from sklearn.metrics import accuracy_score
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.models import Sequential
+from keras.layers import Dense, LSTM, Conv1D, Flatten
+from keras.optimizers import Adam, SGD, Nadam
+from keras import backend as K
+from keras import regularizers
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from joblib import Parallel, delayed
+from tensorflow.python.util import deprecation
+deprecation._PRINT_DEPRECATION_WARNINGS = False
+
+import pandas as pd
+import numpy as np
+import math
+from sklearn import preprocessing
+import glob
+from os import path
+import collections
+import statistics
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+import xgboost as xgb
+from joblib import Parallel, delayed
+import gc
+
 fe_dir = "C:\\Users\\Inseung Kang\\Desktop\\feature extraction data\\"
 base_path_dir = "C:\\Users\\Inseung Kang\\Desktop\\Result\\"
 
@@ -478,6 +530,7 @@ def NN_parallel(combo):
     text_file1 = base_path_dir + NN_saving_file + ".txt"
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_overall_accuracy),"\n"])
     return text_file1, msg1
+
 def xgboost_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -635,32 +688,6 @@ NN_saving_file = "NN_ramp_remove1"
 XGB_saving_file = "XGB_ramp_remove1"
 training_mode = ["RA3", "RA4", "RA5", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RD2"]
-
-# LDA run
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [750]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                run_combos.append([testing_subject, window_size, transition_point, phase_number])
-result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
-
-# SVM run
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [350]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                for kernel_type in ['rbf']:
-                        run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-
-result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
 
 # NN run
 run_combos = []
