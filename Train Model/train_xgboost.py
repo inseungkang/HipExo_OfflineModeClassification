@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 import math
 from sklearn import preprocessing
-import matplotlib.pyplot as plt
-from matplotlib import style
 import glob
 from os import path
 import collections
@@ -23,7 +21,7 @@ def xgboost_parallel(combo):
     tree_depth = combo[5]
     child_weight = combo[6]
 
-    fe_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/feature extraction data/"
+    fe_dir = "/HDD/hipexo/Inseung/Feature Extraction Data/"
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -41,7 +39,7 @@ def xgboost_parallel(combo):
         for subject in subject_pool:
             for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5","SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
                 for starting_leg in ["R", "L"]:
-                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(train_path) == 1:
                         for train_read_path in glob.glob(train_path):
@@ -74,7 +72,7 @@ def xgboost_parallel(combo):
         for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
-                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(test_path) == 1:
                         for test_read_path in glob.glob(test_path):
@@ -122,7 +120,7 @@ def xgboost_parallel(combo):
         for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
-                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*10))+"_S2_"+str(starting_leg)+str(trial)+".csv"
+                    test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(test_path) == 1:
                         for test_read_path in glob.glob(test_path):
@@ -167,8 +165,8 @@ def xgboost_parallel(combo):
     xgboost_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
     print("subject = "+str(testing_subject)+" window_size = "+str(window_size)+" phase_number = "+str(phase_number)+" Accuracy = "+str(xgboost_overall_accuracy))
 
-    base_path_dir = "/HDD/Inseung/Dropbox (GaTech)/ML/data/sensor_fusion/Result/"
-    text_file1 = base_path_dir + "xgboost_phase_result.txt"
+    base_path_dir = "/HDD/hipexo/Inseung/Result/"
+    text_file1 = base_path_dir + "xgboost_phasesweep.txt"
 
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(xgboost_overall_accuracy),"\n"])
     return text_file1, msg1
@@ -178,9 +176,9 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
     for window_size in [350]:
         for transition_point in [0.2]:
             for phase_number in [1, 2, 3, 4, 5, 6, 7, 8]:
-                for boost_round in [400]:
-                    for tree_depth in [6]:
-                        for child_weight in [0.1]:
+                for boost_round in [200]:
+                    for tree_depth in [8]:
+                        for child_weight in [0.01]:
                             run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
 
 result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)

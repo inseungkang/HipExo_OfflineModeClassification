@@ -8,18 +8,26 @@ from os import path
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 import collections
 import statistics
-from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 import xgboost as xgb
 from joblib import Parallel, delayed
 import gc
 os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
 
-def xgboost_parallel(combo):
-    channel = combo[0]
-    testing_subject = combo[1]
-    feature_list = chosen_features + [channel]
+window_size = 350
+transition_point = 0.2
+phase_number = 1
+boost_round = 200
+tree_depth = 8
+child_weight = 0.01
+fe_dir = "/HDD/hipexo/Inseung/Feature Extraction Data/"
 
+num_channels = 70
+chosen_features = []
+channel_list = list( np.arange(0, num_channels))
+
+def xgboost_parallel(combo):
+    testing_subject = combo[0]
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
     del subject_pool[subject_pool.index(testing_subject)]
@@ -58,10 +66,11 @@ def xgboost_parallel(combo):
                     Y_train = pd.concat([Y_train, Y], axis=0, ignore_index=True)
                     gp_train = pd.concat([gp_train, gp], axis=0, ignore_index=True)
 
+######### training the unified model ##############
     xg_train = xgb.DMatrix(X_train, label=Y_train)
     model = xgb.train(params, xg_train, num_boost_round = boost_round)
     del [[X, Y, gp, X_train, Y_train, gp_train]]
-
+######### testing the unified model ##############
     for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
         for starting_leg in ["R", "L"]:   
             for trial in trial_pool: 
@@ -76,7 +85,6 @@ def xgboost_parallel(combo):
                         Y_pred = model.predict(xg_test)
                         Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
                         Y_test_result = np.concatenate((Y_test_result, Y))
-
     for trial in trial_pool:
         train_path = fe_dir+"AB"+str(testing_subject)+"_LG_W"+str(window_size)+"_TP0_S2_R"+str(trial)+".csv"
 
@@ -94,47 +102,25 @@ def xgboost_parallel(combo):
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
     xgboost_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
-    output = [channel, xgboost_overall_accuracy]
-    return output
+    model_accuracy.append(xgboost_overall_accuracy)
+    return model_accuracy
 
-
-
-
-###################################################################################
-window_size = 350
-transition_point = 0.2
-phase_number = 1
-boost_round = 200
-tree_depth = 8
-child_weight = 0.01
-fe_dir = "/HDD/hipexo/Inseung/Feature Extraction Data/"
-
-num_channels = 70
-channel_list = list(np.arange(0,num_channels))
-chosen_features = []
-# # chosen_features = [1, 2, 52, 64, 12, 62, 54, 37, 44, 60, 53, 42, 43, 27, 32, 63, 11, 17, 24, 66, 38, 10, 45, 22, 7, 39, 51, 4, 21, 57, 14, 69, 34, 19, 25, 59, 29, 40, 15, 61, 18, 3, 41, 9, 36, 47, 33, 13, 8, 31, 6, 55, 48, 28, 49, 58, 20, 23, 16, 30, 68, 67, 46, 56, 65, 35, 50]
-# # channel_list.remove(chosen_features)
-# for x in chosen_features:
-# 	channel_list.remove(x)
-# print(channel_list)
-# num_channels = len(channel_list)
-
+##############################################################################
 for num_features in range(0, num_channels):
     print("Finding feature #" + str(num_features) + ': ')
-
     channel_scores = {}
-    run_combos = []
     for channel in channel_list:
-        for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-            run_combos.append([channel, testing_subject])
-    joblib_result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+        testing_features = chosen_features + [channel]
+        feature_list = testing_features
 
-    for channel in channel_list:
-        individual_channel_accuracy = []
-        for model_output in joblib_result:
-            if model_output[0] == channel:
-                individual_channel_accuracy.append(model_output[1])
-        channel_scores[channel] = np.mean(individual_channel_accuracy)
+        model_accuracy = []
+        run_combos = []
+        for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+            run_combos.append([testing_subject])
+        model_accuracy = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+
+        scores = np.mean(model_accuracy)
+        channel_scores[channel] = scores
 
     #find max score
     highest_channel = max(channel_scores, key=channel_scores.get)
@@ -143,11 +129,9 @@ for num_features in range(0, num_channels):
     chosen_features.append(highest_channel)
     channel_list.remove(highest_channel)
 
-    save_path = "/HDD/hipexo/Inseung/Result/XGBoost_FS_New1.txt"
+    save_path = "/HDD/hipexo/Inseung/Result/XGBoost_FS_New.txt"
     with open(save_path, 'a') as f:
         for item in chosen_features:
             f.write(str(item) + ", ")
         f.write("\t" + str(channel_scores[highest_channel]) + "\n\r")
     f.close()
-
-
