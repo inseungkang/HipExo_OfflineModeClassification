@@ -1,45 +1,40 @@
+import glob
+import os
 import pandas as pd
 import numpy as np
 import math
-from sklearn import preprocessing
-import glob
-from os import path
+import matplotlib.pyplot as plt
+from matplotlib import style
 import collections
 import statistics
-from sklearn.metrics import confusion_matrix
+from os import path
 from sklearn.metrics import accuracy_score
-import xgboost as xgb
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from joblib import Parallel, delayed
-import gc
 
-LDA_saving_file = "LDA_remove1"
-SVM_saving_file = "SVM_remove1"
-NN_saving_file = "NN_remove1"
-XGB_saving_file = "XGB_remove1"
 
-training_mode = ["RA3", "RA4", "RA5", "RD3", "RD4", "RD5","SA2", "SA3", "SA4", "SD2", "SD3", "SD4"]
-testing_mode = ["RA2", "RD2", "SA1", "SD1"]
+LDA_saving_file = "LDA_remove2"
+SVM_saving_file = "SVM_remove2"
+NN_saving_file = "NN_remove2"
+XGB_saving_file = "XGB_remove2"
 
-def xgboost_parallel(combo):
+training_mode = ["RA2", "RA4", "RA5", "RD2", "RD4", "RD5","SA1", "SA3", "SA4", "SD1", "SD3", "SD4"]
+testing_mode = ["RA3", "RD3", "SA2", "SD2"]
+
+
+#############################################################################
+def lda_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
     transition_point = combo[2]
     phase_number = combo[3]
-    boost_round = combo[4]
-    tree_depth = combo[5]
-    child_weight = combo[6]
 
-<<<<<<< HEAD
-    fe_dir = "/HDD/hipexo/Inseung/Feature Extraction Data/"
-=======
     fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
->>>>>>> e1f27d97f3bebba058c4f85ce5f6a72f3dceee6f
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
     del subject_pool[subject_pool.index(testing_subject)]
 
-    params = {'verbosity':0, 'objective':'multi:softmax', 'num_class':5, 'max_depth':tree_depth, 'min_child_weight':child_weight}
     X_train = pd.DataFrame()
     Y_train = pd.DataFrame()
     gp_train = pd.DataFrame()
@@ -76,8 +71,8 @@ def xgboost_parallel(combo):
 
     if phase_number == 1:
 ######### training the unified model ##############
-        xg_train = xgb.DMatrix(X_train, label=Y_train)
-        model = xgb.train(params, xg_train, num_boost_round = boost_round)
+        lda_model = LDA()
+        lda_model.fit(X_train, np.ravel(Y_train))
         del [[X, Y, gp, X_train, Y_train, gp_train]]
 
 ######### testing the unified model ##############
@@ -91,8 +86,7 @@ def xgboost_parallel(combo):
                             data = pd.read_csv(test_read_path, header=None)
                             X = data.iloc[:, :-3]
                             Y = data.iloc[:, -1]
-                            xg_test = xgb.DMatrix(X, label=Y)
-                            Y_pred = model.predict(xg_test)
+                            Y_pred = lda_model.predict(X)
                             Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
                             Y_test_result = np.concatenate((Y_test_result, Y))
 
@@ -104,12 +98,10 @@ def xgboost_parallel(combo):
                     data = pd.read_csv(test_read_path, header=None)
                     X = data.iloc[:, :-3]
                     Y = data.iloc[:, -1]
-                    xg_test = xgb.DMatrix(X, label=Y)
-                    Y_pred = model.predict(xg_test)
-
+                    Y_pred = lda_model.predict(X)
                     Y_pred_result = np.concatenate((Y_pred_result, Y_pred))
                     Y_test_result = np.concatenate((Y_test_result, Y))
-                    del [[X, Y, Y_pred, xg_test]]
+                    del [[X, Y, Y_pred]]
 
     else:
 ######### training the phase dependent model ##############
@@ -123,10 +115,11 @@ def xgboost_parallel(combo):
             gp_train_idx.append([jj for jj, phase in enumerate(gp_train) if phase >= 0 + (ii/phase_number)*100 and phase < ((ii+1)/phase_number)*100])
 
         for ii in phase_count:
-            xg_train = xgb.DMatrix(X_train.values[gp_train_idx[ii]], label=Y_train.values[gp_train_idx[ii]])
-            model = xgb.train(params, xg_train, num_boost_round = boost_round)      
-            phase_model.append(model)
-        del [[X, Y, gp, X_train, Y_train, gp_train, xg_train]]
+            lda_model = LDA()
+            lda_model.fit(X_train.values[gp_train_idx[ii]], np.ravel(Y_train.values[gp_train_idx[ii]]))
+            phase_model.append(lda_model)
+
+        del [[X, Y, gp, X_train, Y_train, gp_train]]
 
 ######### testing the phase dependent model ##############
         for mode in testing_mode:
@@ -145,11 +138,10 @@ def xgboost_parallel(combo):
                             for ii in range(len(Y)):
                                 for jj in phase_count:
                                     if gp[ii] >= 0 + (jj/phase_number)*100 and gp[ii] < ((jj+1)/phase_number)*100:
-                                        xg_test = xgb.DMatrix(X.values[ii,:].reshape(1, -1))
-                                        Y_pred = phase_model[jj].predict(xg_test)
-                                        Y_pred_result.append(Y_pred)
+                                        Y_pred = phase_model[jj].predict(X.values[ii,:].reshape(1, -1))
+                                        Y_pred_result.append(Y_pred)                            
                             Y_test_result = np.concatenate((Y_test_result, Y))
-                            del [[X, Y, gp, Y_pred, xg_test]]
+
 
         for trial in trial_pool:
             train_path = fe_dir+"AB"+str(testing_subject)+"_LG_W"+str(window_size)+"_TP0_S2_R"+str(trial)+".csv"
@@ -165,43 +157,30 @@ def xgboost_parallel(combo):
                     for ii in range(len(Y)):
                         for jj in phase_count:
                             if gp[ii] >= 0 + (jj/phase_number)*100 and gp[ii] < ((jj+1)/phase_number)*100:
-                                xg_test = xgb.DMatrix(X.values[ii,:].reshape(1, -1))
-                                Y_pred = phase_model[jj].predict(xg_test)
-                                Y_pred_result.append(Y_pred)
+                                Y_pred = phase_model[jj].predict(X.values[ii,:].reshape(1, -1))
+                                Y_pred_result.append(Y_pred)                            
                     Y_test_result = np.concatenate((Y_test_result, Y))
-                    del [[X, Y, gp, Y_pred, xg_test]]
+                    del [[X, Y, gp, Y_pred]]
 
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
-
-    xgboost_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
-    print("subject = "+str(testing_subject)+" window_size = "+str(window_size)+" phase_number = "+str(phase_number)+" Accuracy = "+str(xgboost_overall_accuracy))
+    LDA_overall_accuracy = accuracy_score(Y_test_result, Y_pred_result)
+    print("subject = "+str(testing_subject)+" window size = "+str(window_size)+" phase number = "+str(phase_number)+ " Accuracy = "+str(LDA_overall_accuracy))
 
     base_path_dir = "/HDD/hipexo/Inseung/Result/"
-<<<<<<< HEAD
-    text_file1 = base_path_dir + "xgboost_phasesweep.txt"
-=======
-    text_file1 = base_path_dir + XGB_saving_file + ".txt"
->>>>>>> e1f27d97f3bebba058c4f85ce5f6a72f3dceee6f
+    text_file1 = base_path_dir + LDA_saving_file + ".txt"
 
-    msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(xgboost_overall_accuracy),"\n"])
+    msg1 = ' '.join([str(testing_subject), str(window_size), str(transition_point), str(phase_number), str(LDA_overall_accuracy),"\n"])
     return text_file1, msg1
+
 
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [350]:
+    for window_size in [750]:
         for transition_point in [0.2]:
-<<<<<<< HEAD
-            for phase_number in [1, 2, 3, 4, 5, 6, 7, 8]:
-=======
             for phase_number in [1]:
->>>>>>> e1f27d97f3bebba058c4f85ce5f6a72f3dceee6f
-                for boost_round in [200]:
-                    for tree_depth in [8]:
-                        for child_weight in [0.01]:
-                            run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-
-result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+                run_combos.append([testing_subject, window_size, transition_point, phase_number])
+result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])

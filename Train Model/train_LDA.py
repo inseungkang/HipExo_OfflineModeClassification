@@ -10,6 +10,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from joblib import Parallel, delayed
 
+
+LDA_saving_file = "LDA_remove3"
+SVM_saving_file = "SVM_remove3"
+NN_saving_file = "NN_remove3"
+XGB_saving_file = "XGB_remove3"
+
+training_mode = ["RA2", "RA3", "RA5", "RD2", "RD3", "RD5","SA1", "SA2", "SA4", "SD1", "SD2", "SD4"]
+testing_mode = ["RA4", "RD4", "SA3", "SD3"]
+
 #############################################################################
 def lda_parallel(combo):
     testing_subject = combo[0]
@@ -17,7 +26,11 @@ def lda_parallel(combo):
     transition_point = combo[2]
     phase_number = combo[3]
 
+<<<<<<< HEAD
     fe_dir = "/HDD/hipexo/Inseung/Feature Extraction Data/"
+=======
+    fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
+>>>>>>> e1f27d97f3bebba058c4f85ce5f6a72f3dceee6f
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -32,7 +45,7 @@ def lda_parallel(combo):
 ######### concat all the training data ##############
     for trial in trial_pool:
         for subject in subject_pool:
-            for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5","SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
+            for mode in training_mode:
                 for starting_leg in ["R", "L"]:
                     train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
@@ -64,7 +77,7 @@ def lda_parallel(combo):
         del [[X, Y, gp, X_train, Y_train, gp_train]]
 
 ######### testing the unified model ##############
-        for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
+        for mode in testing_mode:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
                     test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
@@ -110,7 +123,7 @@ def lda_parallel(combo):
         del [[X, Y, gp, X_train, Y_train, gp_train]]
 
 ######### testing the phase dependent model ##############
-        for mode in ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]:
+        for mode in testing_mode:
             for starting_leg in ["R", "L"]:   
                 for trial in trial_pool: 
                     test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
@@ -156,7 +169,11 @@ def lda_parallel(combo):
     print("subject = "+str(testing_subject)+" window size = "+str(window_size)+" phase number = "+str(phase_number)+ " Accuracy = "+str(LDA_overall_accuracy))
 
     base_path_dir = "/HDD/hipexo/Inseung/Result/"
+<<<<<<< HEAD
     text_file1 = base_path_dir + "LDA_phasesweep.txt"
+=======
+    text_file1 = base_path_dir + LDA_saving_file + ".txt"
+>>>>>>> e1f27d97f3bebba058c4f85ce5f6a72f3dceee6f
 
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(LDA_overall_accuracy),"\n"])
     return text_file1, msg1
@@ -165,7 +182,7 @@ run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [750]:
         for transition_point in [0.2]:
-            for phase_number in [1, 2, 3, 4, 5, 6, 7, 8]:
+            for phase_number in [1]:
                 run_combos.append([testing_subject, window_size, transition_point, phase_number])
 result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
 for r in result:
