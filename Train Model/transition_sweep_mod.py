@@ -14,6 +14,7 @@ import xgboost as xgb
 import gc
 import warnings
 warnings.filterwarnings('ignore',category=FutureWarning)
+import tensorflow as tf
 import keras
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Sequential
@@ -25,6 +26,9 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from joblib import Parallel, delayed
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
+
+np.random.seed(1)
+tf.compat.v1.set_random_seed(seed=5)
 
 LDA_saving_file = "LDA_transition_sweep"
 SVM_saving_file = "SVM_transition_sweep"
