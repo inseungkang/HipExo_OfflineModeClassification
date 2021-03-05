@@ -76,14 +76,13 @@ import matplotlib.pyplot as plt
 
 np.random.seed(1)
 tf.set_random_seed(seed=5)
-
 np.random.seed(1)
 tf.compat.v1.set_random_seed(seed=5)
 
-LDA_saving_file = "LDA_transition_sweep"
-SVM_saving_file = "SVM_transition_sweep"
-NN_saving_file = "NN_transition_sweep"
-XGB_saving_file = "XGB_transition_sweep"
+LDA_saving_file = "LDA_lead_trail"
+SVM_saving_file = "SVM_lead_trail"
+NN_saving_file = "NN_lead_trail"
+XGB_saving_file = "XGB_lead_trail"
 
 training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
@@ -97,6 +96,7 @@ def lda_parallel(combo):
     window_size = combo[1]
     transition_point = combo[2]
     phase_number = combo[3]
+    start_leg = combo[4]
 
     trial_pool = [1, 2, 3]
     subject_pool = [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]
@@ -116,7 +116,7 @@ def lda_parallel(combo):
     for trial in trial_pool:
         for subject in subject_pool:
             for mode in training_mode:
-                for starting_leg in ["R", "L"]:
+                for starting_leg in start_leg:
                     train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
                     if path.exists(train_path) == 1:
@@ -145,7 +145,7 @@ def lda_parallel(combo):
     del [[X, Y, gp, X_train, Y_train, gp_train]]
 
     for mode in testing_mode:
-        for starting_leg in ["R", "L"]:   
+        for starting_leg in start_leg:   
             for trial in trial_pool: 
                 test_path = fe_dir+"AB"+str(testing_subject)+"_"+str(mode)+"_W"+str(window_size)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+".csv"
 
@@ -165,7 +165,7 @@ def lda_parallel(combo):
                         Y_steady_pred_result = np.concatenate((Y_steady_pred_result, Y_pred[steady_idx]))
                         Y_steady_test_result = np.concatenate((Y_steady_test_result, Y[steady_idx])) 
                         Y_trans_pred_result = np.concatenate((Y_trans_pred_result, Y_pred[trans_idx])) 
-                        Y_trans_test_result = np.concatenate((Y_trans_test_result, Y[trans_idx])) 
+                        Y_trans_test_result = np.concatenate((Y_trans_test_result, Y[trans_idx]))
 
     for trial in trial_pool:
         train_path = fe_dir+"AB"+str(testing_subject)+"_LG_W"+str(window_size)+"_TP0_S2_R"+str(trial)+".csv"
@@ -183,7 +183,6 @@ def lda_parallel(combo):
                 Y_steady_test_result = np.concatenate((Y_steady_test_result, Y))
                 del [[X, Y, Y_pred]]
 
-    LDA_confusion_matrix = confusion_matrix(Y_test_result, Y_pred_result, labels=[0, 1, 2, 3, 4])
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
 
@@ -197,14 +196,10 @@ def lda_parallel(combo):
     LDA_steady_accuracy = accuracy_score(Y_steady_test_result, Y_steady_pred_result)
     LDA_trans_accuracy = accuracy_score(Y_trans_test_result, Y_trans_pred_result)
 
-    output = ' '.join(str(element) for innerlist in LDA_confusion_matrix for element in innerlist)
-
     text_file1 = base_path_dir + LDA_saving_file + ".txt"
-    text_file2 = base_path_dir + LDA_saving_file + "_CM.txt"
-
-    msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(LDA_steady_accuracy),str(LDA_trans_accuracy),str(LDA_overall_accuracy),"\n"])
-    msg2 = ' '.join([output,"\n"])
+    msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(start_leg),str(LDA_steady_accuracy),str(LDA_trans_accuracy),str(LDA_overall_accuracy),"\n"])
     return text_file1, msg1
+
 def SVM_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -564,51 +559,52 @@ def xgboost_parallel(combo):
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [750]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
+        for transition_point in [0.2]:
             for phase_number in [1]:
-                run_combos.append([testing_subject, window_size, transition_point, phase_number])
+                for start_leg in ["R", "L"]:
+                run_combos.append([testing_subject, window_size, transition_point, phase_number, start_leg])
 result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
 for r in result:
     with open(r[0],"a+") as f:
         f.write(r[1])
 
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [350]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
-            for phase_number in [1]:
-                for boost_round in [200]:
-                    for tree_depth in [8]:
-                        for child_weight in [0.01]:
-                            run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
-result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+    # for window_size in [350]:
+    #     for transition_point in [0.2]:
+    #         for phase_number in [1]:
+    #             for boost_round in [200]:
+    #                 for tree_depth in [8]:
+    #                     for child_weight in [0.01]:
+    #                         run_combos.append([testing_subject, window_size, transition_point, phase_number, boost_round, tree_depth, child_weight])
+    # result = Parallel(n_jobs=-1)(delayed(xgboost_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    # with open(r[0],"a+") as f:
+    #     f.write(r[1])
 
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [550]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
-            for phase_number in [1]:
-                for layer_num in [4]:
-                    for node_num in [25]:
-                        for optimizer_value in ['SGD']:
-                            run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
-result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+    # for window_size in [550]:
+    #     for transition_point in [0.2]:
+    #         for phase_number in [1]:
+    #             for layer_num in [4]:
+    #                 for node_num in [25]:
+    #                     for optimizer_value in ['SGD']:
+    #                         run_combos.append([testing_subject, window_size, transition_point, phase_number, layer_num, node_num, optimizer_value])
+    # result = Parallel(n_jobs=-1)(delayed(NN_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    # with open(r[0],"a+") as f:
+    #     f.write(r[1])
 
-run_combos = []
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    for window_size in [350]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
-            for phase_number in [1]:
-                for kernel_type in ['rbf']:
-                        run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
-result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
-for r in result:
-    with open(r[0],"a+") as f:
-        f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
+    # for window_size in [350]:
+    #     for transition_point in [0.2]:
+    #         for phase_number in [1]:
+    #             for kernel_type in ['rbf']:
+    #                     run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
+    # result = Parallel(n_jobs=-1)(delayed(SVM_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    # with open(r[0],"a+") as f:
+    #     f.write(r[1])
 
