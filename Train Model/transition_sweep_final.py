@@ -133,13 +133,10 @@ def lda_parallel(combo):
                 Y_steady_test_result = np.concatenate((Y_steady_test_result, Y))
                 del [[X, Y, Y_pred]]
 
-    LDA_confusion_matrix = confusion_matrix(Y_test_result, Y_pred_result, labels=[0, 1, 2, 3, 4])
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
-
     Y_steady_test_result = np.ravel(Y_steady_test_result)
     Y_steady_pred_result = np.ravel(Y_steady_pred_result)
-
     Y_trans_test_result = np.ravel(Y_trans_test_result)
     Y_trans_pred_result = np.ravel(Y_trans_pred_result)
 
@@ -147,14 +144,10 @@ def lda_parallel(combo):
     LDA_steady_accuracy = accuracy_score(Y_steady_test_result, Y_steady_pred_result)
     LDA_trans_accuracy = accuracy_score(Y_trans_test_result, Y_trans_pred_result)
 
-    output = ' '.join(str(element) for innerlist in LDA_confusion_matrix for element in innerlist)
-
     text_file1 = base_path_dir + LDA_saving_file + ".txt"
-    text_file2 = base_path_dir + LDA_saving_file + "_CM.txt"
-
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(LDA_steady_accuracy),str(LDA_trans_accuracy),str(LDA_overall_accuracy),"\n"])
-    msg2 = ' '.join([output,"\n"])
     return text_file1, msg1
+
 def SVM_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -204,7 +197,6 @@ def SVM_parallel(combo):
                     Y_train = pd.concat([Y_train, Y], axis=0, ignore_index=True)
                     gp_train = pd.concat([gp_train, gp], axis=0, ignore_index=True)
 
-
     svm_model = SVC(gamma='auto', kernel=kernel_type)
     svm_model.fit(X_train, np.ravel(Y_train))
     del [[X, Y, gp, X_train, Y_train, gp_train]]
@@ -247,7 +239,6 @@ def SVM_parallel(combo):
                 Y_steady_test_result = np.concatenate((Y_steady_test_result, Y))
                 del [[X, Y, Y_pred]]
 
-    SVM_confusion_matrix = confusion_matrix(Y_test_result, Y_pred_result, labels=[0, 1, 2, 3, 4])
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
 
@@ -261,13 +252,8 @@ def SVM_parallel(combo):
     SVM_steady_accuracy = accuracy_score(Y_steady_test_result, Y_steady_pred_result)
     SVM_trans_accuracy = accuracy_score(Y_trans_test_result, Y_trans_pred_result)
 
-    output = ' '.join(str(element) for innerlist in SVM_confusion_matrix for element in innerlist)
-    print(output)
     text_file1 = base_path_dir + SVM_saving_file + ".txt"
-    text_file2 = base_path_dir + SVM_saving_file + "_CM.txt"
-
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(SVM_steady_accuracy),str(SVM_trans_accuracy),str(SVM_overall_accuracy),"\n"])
-    msg2 = ' '.join([output,"\n"])
     return text_file1, msg1
 def NN_parallel(combo):
     testing_subject = combo[0]
@@ -379,15 +365,8 @@ def NN_parallel(combo):
     NN_steady_accuracy = accuracy_score(Y_test[steady_idx], Y_pred[steady_idx])
     NN_trans_accuracy = accuracy_score(Y_test[trans_idx], Y_pred[trans_idx])
 
-    NN_confusion_matrix = confusion_matrix(Y_test, Y_pred, labels=[0, 1, 2, 3, 4])
-
-    output = ' '.join(str(element) for innerlist in NN_confusion_matrix for element in innerlist)
     text_file1 = base_path_dir + NN_saving_file + ".txt"
-    text_file2 = base_path_dir + NN_saving_file + "_CM.txt"
-
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_steady_accuracy),str(NN_trans_accuracy),str(NN_overall_accuracy),"\n"])
-    msg2 = ' '.join([output,"\n"])
-
     del [[X_train, Y_train, X_test, Y_test]]
     return text_file1, msg1
 def xgboost_parallel(combo):
@@ -488,13 +467,10 @@ def xgboost_parallel(combo):
                 Y_steady_test_result = np.concatenate((Y_steady_test_result, Y))
                 del [[X, Y, Y_pred, xg_test]]
 
-    XGB_confusion_matrix = confusion_matrix(Y_test_result, Y_pred_result, labels=[0, 1, 2, 3, 4])
     Y_test_result = np.ravel(Y_test_result)
     Y_pred_result = np.ravel(Y_pred_result)
-
     Y_steady_test_result = np.ravel(Y_steady_test_result)
     Y_steady_pred_result = np.ravel(Y_steady_pred_result)
-
     Y_trans_test_result = np.ravel(Y_trans_test_result)
     Y_trans_pred_result = np.ravel(Y_trans_pred_result)
 
@@ -502,19 +478,14 @@ def xgboost_parallel(combo):
     XGB_steady_accuracy = accuracy_score(Y_steady_test_result, Y_steady_pred_result)
     XGB_trans_accuracy = accuracy_score(Y_trans_test_result, Y_trans_pred_result)
 
-    output = ' '.join(str(element) for innerlist in XGB_confusion_matrix for element in innerlist)
-    print(output)
     text_file1 = base_path_dir + XGB_saving_file + ".txt"
-    text_file2 = base_path_dir + XGB_saving_file + "_CM.txt"
-
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(XGB_steady_accuracy),str(XGB_trans_accuracy),str(XGB_overall_accuracy),"\n"])
-    msg2 = ' '.join([output,"\n"])
     return text_file1, msg1
 
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [750]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
+        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
             for phase_number in [1]:
                 run_combos.append([testing_subject, window_size, transition_point, phase_number])
 result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
@@ -525,7 +496,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [350]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
+        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
             for phase_number in [1]:
                 for boost_round in [200]:
                     for tree_depth in [8]:
@@ -539,7 +510,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [550]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
+        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
             for phase_number in [1]:
                 for layer_num in [4]:
                     for node_num in [25]:
@@ -553,7 +524,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [350]:
-        for transition_point in [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]:
+        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
