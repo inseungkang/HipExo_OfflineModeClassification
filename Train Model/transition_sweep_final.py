@@ -38,7 +38,7 @@ XGB_saving_file = "XGB_transition_sweep"
 training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 
-fe_dir = "/HDD/hipexo/Inseung/feature extraction data/"
+fe_dir = "/HDD/hipexo/Inseung/feature extraction data transition test/"
 base_path_dir = "/HDD/hipexo/Inseung/Result/"
 
 #############################################################################
@@ -485,7 +485,7 @@ def xgboost_parallel(combo):
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [750]:
-        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+        for transition_point in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
             for phase_number in [1]:
                 run_combos.append([testing_subject, window_size, transition_point, phase_number])
 result = Parallel(n_jobs=-1)(delayed(lda_parallel)(combo) for combo in run_combos)
@@ -496,7 +496,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [350]:
-        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+        for transition_point in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
             for phase_number in [1]:
                 for boost_round in [200]:
                     for tree_depth in [8]:
@@ -510,7 +510,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [550]:
-        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+        for transition_point in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
             for phase_number in [1]:
                 for layer_num in [4]:
                     for node_num in [25]:
@@ -524,7 +524,7 @@ for r in result:
 run_combos = []
 for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
     for window_size in [350]:
-        for transition_point in [0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+        for transition_point in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
             for phase_number in [1]:
                 for kernel_type in ['rbf']:
                         run_combos.append([testing_subject, window_size, transition_point, phase_number, kernel_type])
