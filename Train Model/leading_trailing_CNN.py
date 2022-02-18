@@ -11,6 +11,9 @@ from joblib import Parallel, delayed
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.svm import SVC
+import xgboost as xgb
 import warnings
 warnings.filterwarnings('ignore',category=FutureWarning)
 import keras
@@ -133,7 +136,7 @@ def CNN_Train():
     # NN_trans_accuracy = accuracy_score(Y_test[trans_idx], Y_pred[trans_idx])
     print(NN_overall_accuracy)
     text_file1 = base_path_dir + CNN_saving_file + ".txt"
-    msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_steady_accuracy),str(NN_trans_accuracy),str(NN_overall_accuracy),"\n"])
+    msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(start_leg),str(NN_steady_accuracy),str(NN_trans_accuracy),str(NN_overall_accuracy),"\n"])
     # del [[X_train, Y_train, X_test, Y_test]]
     # return text_file1, msg1
 def build_cnn_model(window_size, conv_kernel, cnn_activation, dense_nodes, dense_layers, dense_optimizer):
@@ -210,7 +213,8 @@ def cnn_parallel(testing_subject, combo):
     cnn_activation = combo[4]
     dense_layers = combo[5]
     dense_optimizer = combo[6]
-    imu_num = combo[7]
+    start_leg = combo[7]
+
 
     dense_nodes = (int)((window_size-5*conv_kernel + 5)/2)
 
@@ -227,8 +231,8 @@ def cnn_parallel(testing_subject, combo):
     for trial in trial_pool:
         for subject in subject_pool:
             for mode in training_mode:
-                for starting_leg in ["R", "L"]:
-                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+"_IMU"+str(imu_num)+"_CNN.csv"
+                for starting_leg in start_leg:
+                    train_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+"_CNN.csv"
 
                     if path.exists(train_path) == 1:
                         for train_read_path in glob.glob(train_path):
@@ -244,7 +248,7 @@ def cnn_parallel(testing_subject, combo):
                             X_train = np.concatenate([X_train, X], axis=0)
                             Y_train = np.concatenate([Y_train, Y], axis=0)
 
-            train_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_IMU"+str(imu_num)+"_CNN.csv"
+            train_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_CNN.csv"
             if path.exists(train_path) == 1:
                 for train_read_path in glob.glob(train_path):
                     data = pd.read_csv(train_read_path, header=None)
@@ -261,9 +265,9 @@ def cnn_parallel(testing_subject, combo):
 
 
     for mode in testing_mode:
-        for starting_leg in ["R", "L"]:   
+        for starting_leg in start_leg:   
             for trial in trial_pool: 
-                test_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+"_IMU"+str(imu_num)+"_CNN.csv"
+                test_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+"_CNN.csv"
 
                 if path.exists(test_path) == 1:
                     for test_read_path in glob.glob(test_path):
@@ -282,7 +286,7 @@ def cnn_parallel(testing_subject, combo):
                         Y_true = np.concatenate([Y_true, Y_t], axis=0)
 
     for trial in trial_pool:
-        train_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_IMU"+str(imu_num)+"_CNN.csv"
+        train_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_CNN.csv"
 
         if path.exists(test_path) == 1:
             for test_read_path in glob.glob(test_path):
@@ -323,28 +327,24 @@ def cnn_parallel(testing_subject, combo):
         ", Dense Layer: "+str(dense_layers)+
         ", Dense Node: "+str(dense_nodes)+
         ", Dense Optimizer: "+str(dense_optimizer)+
-        ", IMU Location: "+str(imu_num)+
+        ", Starting Leg: "+str(start_leg)+
         ", Steady Accuracy: "+str(CNN_steady_accuracy)+
         ", Trans Accuracy: "+str(CNN_trans_accuracy)+
         ", Overall Accuracy: "+str(CNN_overall_accuracy))
 
     text_file1 = base_path_dir + CNN_saving_file + ".txt"
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(conv_kernel),
-        str(cnn_activation),str(dense_layers),str(dense_nodes),str(dense_optimizer),str(imu_num),str(CNN_steady_accuracy),str(CNN_trans_accuracy),str(CNN_overall_accuracy),"\n"])
+        str(cnn_activation),str(dense_layers),str(dense_nodes),str(dense_optimizer),str(start_leg),
+        str(CNN_steady_accuracy),str(CNN_trans_accuracy),str(CNN_overall_accuracy),"\n"])
     return text_file1, msg1
 
-<<<<<<< HEAD
-fe_dir = "/Users/inseungkang/Documents/hipexo_ml/feature extraction data_CNN/"
-base_path_dir = "/Users/inseungkang/Documents/hipexo_ml/Result/"
-=======
 fe_dir = "/HDD/hipexo/Inseung/sim IMU feature extraction data_CNN/"
 base_path_dir = "/HDD/hipexo/Inseung/Result/"
->>>>>>> c3f29432c7acc01c65dcc6f5746fa7716df72f63
 
 
 #######################################################################
 # IMU Location Sweep
-CNN_saving_file = "CNN_IMU_sweep"
+CNN_saving_file = "CNN_LeadTrail"
 training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 
@@ -357,36 +357,14 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
                     for cnn_activation in ['relu']:
                         for dense_layers in [1]:
                             for dense_optimizer in ['adam']:
-                                for imu_num in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
-                                    run_combos.append([window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer, imu_num])
+                                for start_leg in ['R', 'L']:
+                                    run_combos.append([window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer, start_leg])
     result = Parallel(n_jobs=-1)(delayed(cnn_parallel)(testing_subject, combo) for combo in run_combos)
     for r in result:
         with open(r[0],"a+") as f:
             f.write(r[1])
 
 #####################################################################
-<<<<<<< HEAD
-CNN_saving_file = "CNN_transition_sweep"
-training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    run_combos = []
-    for window_size in [100]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                for conv_kernel in [10]:
-                    for cnn_activation in ['relu']:
-                        for dense_layers in [1]:
-                            for dense_optimizer in ['adam']:
-                                run_combos.append([window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
-    result = Parallel(n_jobs=-1)(delayed(cnn_parallel)(testing_subject, combo) for combo in run_combos)
-    for r in result:
-        with open(r[0],"a+") as f:
-            f.write(r[1])
-#####################################################################
-
-=======
 # Regular/Transition Point Sweeping
 # CNN_saving_file = "CNN_transition_sweep"
 # training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
@@ -440,4 +418,3 @@ for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 
 # for r in result:
 #     with open(r[0],"a+") as f:
 #         f.write(r[1])
->>>>>>> c3f29432c7acc01c65dcc6f5746fa7716df72f63

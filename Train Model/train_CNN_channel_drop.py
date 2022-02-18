@@ -285,7 +285,7 @@ def cnn_parallel(combo):
                         Y_true = np.concatenate([Y_true, Y_t], axis=0)
 
     for trial in trial_pool:
-        train_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_CNN.csv"
+        test_path = fe_dir+"AB"+str(subject)+"_LG_TP0_S2_R"+str(trial)+"_CNN.csv"
 
         if path.exists(test_path) == 1:
             for test_read_path in glob.glob(test_path):
