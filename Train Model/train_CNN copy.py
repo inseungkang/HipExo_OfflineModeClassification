@@ -12,20 +12,50 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 import warnings
+import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore',category=FutureWarning)
-import keras
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Conv1D, Flatten, BatchNormalization, Dropout
-from keras.optimizers import Adam, SGD, Nadam
-from keras import backend as K
-from keras import regularizers
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
-import tensorflow as tf
-from tensorflow.python.util import deprecation
-from keras.initializers import he_uniform
-from keras.layers import Activation
-deprecation._PRINT_DEPRECATION_WARNINGS = False
+
+fe_dir = "/Users/inseungkang/Documents/hipexo_ml/feature extraction data_CNN/"
+base_path_dir = "/Users/inseungkang/Documents/hipexo_ml/Result/"
+
+subject = 6
+mode = "RA2"
+transition_point = 0.2
+starting_leg = "R"
+trial = 1
+
+data_path = fe_dir+"AB"+str(subject)+"_"+str(mode)+"_TP"+str(int(transition_point*100))+"_S2_"+str(starting_leg)+str(trial)+"_CNN.csv"
+
+if path.exists(data_path) == 1:
+    for train_read_path in glob.glob(data_path):
+        data = pd.read_csv(train_read_path, header=None)
+        Z = data.iloc[:, :-3].to_numpy()
+        Y = data.iloc[:, -1].to_numpy()
+
+from numpy import sum,isrealobj,sqrt
+from numpy.random import standard_normal
+def awgn(s,SNRdB,L=1):
+    gamma = 10**(SNRdB/10) #SNR to linear scale
+    if s.ndim==1:# if s is single dimensional vector
+        P=L*sum(abs(s)**2)/len(s) #Actual power in the vector
+    else: # multi-dimensional signals like MFSK
+        P=L*sum(sum(abs(s)**2))/len(s) # if s is a matrix [MxN]
+    N0=P/gamma # Find the noise spectral density
+    if isrealobj(s):# check if input is real/complex object type
+        n = sqrt(N0/2)*standard_normal(s.shape) # computed noise
+    else:
+        n = sqrt(N0/2)*(standard_normal(s.shape)+1j*standard_normal(s.shape))
+    r = s + n # received signal
+    return r
+
+out = np.empty(Z.shape)
+for ii in np.arange(14):
+    out[:,ii] = awgn(Z[:,ii],20)
+
+print(Z[0])
+plt.plot(X[:,0])
+plt.plot(Z[:,0])
+plt.show()
 
 def CNN_Train():
     trial_pool = [1, 2, 3]
@@ -134,73 +164,7 @@ def CNN_Train():
     print(NN_overall_accuracy)
     text_file1 = base_path_dir + CNN_saving_file + ".txt"
     msg1 = ' '.join([str(testing_subject),str(window_size),str(transition_point),str(phase_number),str(NN_steady_accuracy),str(NN_trans_accuracy),str(NN_overall_accuracy),"\n"])
-    # del [[X_train, Y_train, X_test, Y_test]]
-    # return text_file1, msg1
-def build_cnn_model(window_size, conv_kernel, cnn_activation, dense_nodes, dense_layers, dense_optimizer):
-    model = Sequential()
-    model.add(Conv1D(14, conv_kernel,
-                input_shape=(window_size, 14),
-                kernel_initializer=he_uniform(seed=1),
-                bias_initializer=he_uniform(seed=11)))
-    output_kernel = window_size - conv_kernel + 1
-    model.add(BatchNormalization(input_shape=((int)(output_kernel), 14)))
-    model.add(Activation(cnn_activation))
-    model.add(Dropout(0.2))
 
-    model.add(Conv1D(14, conv_kernel,
-                kernel_initializer=he_uniform(seed=44),
-                bias_initializer=he_uniform(seed=32)))
-    output_kernel = output_kernel - conv_kernel + 1
-    model.add(BatchNormalization(input_shape=((int)(output_kernel), 14)))
-    model.add(Dropout(0.2))
-
-    model.add(Conv1D(14, conv_kernel,
-                kernel_initializer=he_uniform(seed=21),
-                bias_initializer=he_uniform(seed=56)))
-    output_kernel = output_kernel - conv_kernel + 1
-    model.add(BatchNormalization(input_shape=((int)(output_kernel), 14)))
-    model.add(Dropout(0.2))
-    model.add(Activation(cnn_activation))
-
-    model.add(Conv1D(14, conv_kernel,
-                kernel_initializer=he_uniform(seed=32),
-                bias_initializer=he_uniform(seed=11)))
-    output_kernel = output_kernel - conv_kernel + 1
-    model.add(BatchNormalization(input_shape=((int)(output_kernel), 14)))
-    model.add(Dropout(0.2))
-    model.add(Activation(cnn_activation))
-
-    model.add(Conv1D(14, conv_kernel,
-                kernel_initializer=he_uniform(seed=32),
-                bias_initializer=he_uniform(seed=11)))
-    output_kernel = output_kernel - conv_kernel + 1
-    model.add(BatchNormalization(input_shape=((int)(output_kernel), 14)))
-    model.add(Dropout(0.2))
-    model.add(Activation(cnn_activation))
-
-    model.add(Flatten())
-
-    while dense_layers:
-        model.add(Dense(dense_nodes,
-                    kernel_initializer=he_uniform(seed=74),
-                    bias_initializer=he_uniform(seed=52)))
-        dense_layers -= 1
-    model.add(Dense(5, activation='softmax',
-                kernel_initializer=he_uniform(seed=74),
-                bias_initializer=he_uniform(seed=52)))
-    model.compile(dense_optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    return model
-
-    # kernel_factor = 0.75
-    # while layers:
-    #     kernel_size = (int)(np.ceil(kernel_factor * conv_kernel))
-    #     output_kernel -= kernel_size - 1
-    #     model.add(Conv1D(10, kernel_size,
-    #             input_shape=(window_size, 10),
-    #             kernel_initializer=he_uniform(seed=1),
-    #             bias_initializer=he_uniform(seed=11)))
-    #     layers -= 1
-    #     kernel_factor -= 0.25
 def cnn_parallel(combo):
     testing_subject = combo[0]
     window_size = combo[1]
@@ -336,27 +300,11 @@ def cnn_parallel(combo):
         str(cnn_activation),str(dense_layers),str(dense_nodes),str(dense_optimizer),str(CNN_steady_accuracy),str(CNN_trans_accuracy),str(CNN_overall_accuracy),"\n"])
     return text_file1, msg1
 
-fe_dir = "/Users/inseungkang/Documents/hipexo_ml/feature extraction data_CNN/"
-base_path_dir = "/Users/inseungkang/Documents/hipexo_ml/Result/"
+
 
 #####################################################################
 CNN_saving_file = "CNN_transition_sweep"
 training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
-
-for testing_subject in [6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 27 ,28]:
-    run_combos = []
-    for window_size in [100]:
-        for transition_point in [0.2]:
-            for phase_number in [1]:
-                for conv_kernel in [10]:
-                    for cnn_activation in ['relu']:
-                        for dense_layers in [1]:
-                            for dense_optimizer in ['adam']:
-                                run_combos.append([window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
-    result = Parallel(n_jobs=-1)(delayed(cnn_parallel)(testing_subject, combo) for combo in run_combos)
-    for r in result:
-        with open(r[0],"a+") as f:
-            f.write(r[1])
 #####################################################################
 

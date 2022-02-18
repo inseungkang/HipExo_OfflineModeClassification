@@ -497,54 +497,210 @@ base_path_dir = "/home/sa-epic/Desktop/Inseung/Result/"
 training_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 testing_mode = ["RA2", "RA3", "RA4", "RA5", "RD2", "RD3", "RD4", "RD5", "SA1", "SA2", "SA3", "SA4", "SD1", "SD2", "SD3", "SD4"]
 
-for dropping_sensor in np.arange(14):
-    print(np.arange(14))
-    # dropping_sensor = np.arange(channel*5, channel*5+4)
-    print(dropping_sensor)
-    CNN_saving_file = "CNN_channel_drop" + str(dropping_sensor)
+
+dropping_sensor = np.arange(0,2)
+print(dropping_sensor)
+CNN_saving_file = "CNN_hip_drop"
+
+
+run_combos = []
+for testing_subject in [6, 7, 8, 9, 10, 12, 13]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [14, 15, 16, 17, 18, 19, 20]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [21, 23, 24, 25, 27 ,28]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+
+dropping_sensor = np.arange(2,8)
+print(dropping_sensor)
+CNN_saving_file = "CNN_thigh_drop"
+
+
+run_combos = []
+for testing_subject in [6, 7, 8, 9, 10, 12, 13]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [14, 15, 16, 17, 18, 19, 20]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [21, 23, 24, 25, 27 ,28]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+
+dropping_sensor = np.arange(8,14)
+print(dropping_sensor)
+CNN_saving_file = "CNN_trunk_drop"
+
+
+run_combos = []
+for testing_subject in [6, 7, 8, 9, 10, 12, 13]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [14, 15, 16, 17, 18, 19, 20]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+run_combos = []
+for testing_subject in [21, 23, 24, 25, 27 ,28]:
+    for window_size in [100]:
+        for transition_point in [0.2]:
+            for phase_number in [1]:
+                for conv_kernel in [10]:
+                    for cnn_activation in ['relu']:
+                        for dense_layers in [1]:
+                            for dense_optimizer in ['adam']:
+                                run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+for r in result:
+    with open(r[0],"a+") as f:
+        f.write(r[1])
+
+
+#######################################################################ORIGINAL
+
+# for dropping_sensor in np.arange(14):
+#     print(np.arange(14))
+#     # dropping_sensor = np.arange(channel*5, channel*5+4)
+#     print(dropping_sensor)
+#     CNN_saving_file = "CNN_channel_drop" + str(dropping_sensor)
 
     # CNN run
-    run_combos = []
-    for testing_subject in [6, 7, 8, 9, 10, 12, 13]:
-        for window_size in [100]:
-            for transition_point in [0.2]:
-                for phase_number in [1]:
-                    for conv_kernel in [10]:
-                        for cnn_activation in ['relu']:
-                            for dense_layers in [1]:
-                                for dense_optimizer in ['adam']:
-                                    run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
-    result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
-    for r in result:
-        with open(r[0],"a+") as f:
-            f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [6, 7, 8, 9, 10, 12, 13]:
+    #     for window_size in [100]:
+    #         for transition_point in [0.2]:
+    #             for phase_number in [1]:
+    #                 for conv_kernel in [10]:
+    #                     for cnn_activation in ['relu']:
+    #                         for dense_layers in [1]:
+    #                             for dense_optimizer in ['adam']:
+    #                                 run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+    # result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    #     with open(r[0],"a+") as f:
+    #         f.write(r[1])
 
-    run_combos = []
-    for testing_subject in [14, 15, 16, 17, 18, 19, 20]:
-        for window_size in [100]:
-            for transition_point in [0.2]:
-                for phase_number in [1]:
-                    for conv_kernel in [10]:
-                        for cnn_activation in ['relu']:
-                            for dense_layers in [1]:
-                                for dense_optimizer in ['adam']:
-                                    run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
-    result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
-    for r in result:
-        with open(r[0],"a+") as f:
-            f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [14, 15, 16, 17, 18, 19, 20]:
+    #     for window_size in [100]:
+    #         for transition_point in [0.2]:
+    #             for phase_number in [1]:
+    #                 for conv_kernel in [10]:
+    #                     for cnn_activation in ['relu']:
+    #                         for dense_layers in [1]:
+    #                             for dense_optimizer in ['adam']:
+    #                                 run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+    # result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    #     with open(r[0],"a+") as f:
+    #         f.write(r[1])
 
-    run_combos = []
-    for testing_subject in [21, 23, 24, 25, 27 ,28]:
-        for window_size in [100]:
-            for transition_point in [0.2]:
-                for phase_number in [1]:
-                    for conv_kernel in [10]:
-                        for cnn_activation in ['relu']:
-                            for dense_layers in [1]:
-                                for dense_optimizer in ['adam']:
-                                    run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
-    result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
-    for r in result:
-        with open(r[0],"a+") as f:
-            f.write(r[1])
+    # run_combos = []
+    # for testing_subject in [21, 23, 24, 25, 27 ,28]:
+    #     for window_size in [100]:
+    #         for transition_point in [0.2]:
+    #             for phase_number in [1]:
+    #                 for conv_kernel in [10]:
+    #                     for cnn_activation in ['relu']:
+    #                         for dense_layers in [1]:
+    #                             for dense_optimizer in ['adam']:
+    #                                 run_combos.append([testing_subject, window_size, transition_point, phase_number, conv_kernel, cnn_activation, dense_layers, dense_optimizer])
+    # result = Parallel(n_jobs=-1)(delayed(cnn_channel_drop_parallel)(combo) for combo in run_combos)
+    # for r in result:
+    #     with open(r[0],"a+") as f:
+    #         f.write(r[1])
